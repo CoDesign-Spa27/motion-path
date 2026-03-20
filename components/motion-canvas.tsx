@@ -15,7 +15,13 @@ import {
 } from '@/components/ui/card';
 import { Copy, Play, Pause, RotateCcw } from 'lucide-react';
 import { MotionPathPreview } from '@/components/motion-path-preview';
-import { IconCircleCompose2FillDuo18, IconLocation2FillDuo18, IconTimer2FillDuo18, IconInboxArrowDownFillDuo18, IconGamingButtonsFillDuo18 } from 'nucleo-ui-essential-fill-duo-18';
+import {
+    IconCircleCompose2FillDuo18,
+    IconLocation2FillDuo18,
+    IconTimer2FillDuo18,
+    IconInboxArrowDownFillDuo18,
+    IconGamingButtonsFillDuo18,
+} from 'nucleo-ui-essential-fill-duo-18';
 import { useTheme } from 'next-themes';
 
 const REF_W = 800;
@@ -29,10 +35,8 @@ interface Point {
     x: number;
     y: number;
     time: number;
-    /** motion `info.offset` from this drag gesture (px) — use for export when single session */
     ox?: number;
     oy?: number;
-    /** Recording drag session id; multiple sessions fall back to logical export */
     session?: number;
 }
 
@@ -396,8 +400,8 @@ export function MotionCanvas() {
                     ? `// x/y = Framer drag info.offset (normalized by current playground ${pw.toFixed(0)}×${ph.toFixed(0)}px). Multiply x by container width and y by height in your app.`
                     : `// x/y = Framer drag info.offset in CSS pixels from gesture start. Matches transform space when your motion element uses the same scale as this playground (${pw.toFixed(0)}×${ph.toFixed(0)}px).`
                 : exportNormalized
-                  ? `// x/y = deltas along the path, normalized by playground size. Scale with your container width/height.`
-                  : `// x/y = pixel deltas from first keyframe, scaled from logical path for playground ${pw.toFixed(0)}×${ph.toFixed(0)}px (aspect ${REF_W}:${REF_H}).`;
+                ? `// x/y = deltas along the path, normalized by playground size. Scale with your container width/height.`
+                : `// x/y = pixel deltas from first keyframe, scaled from logical path for playground ${pw.toFixed(0)}×${ph.toFixed(0)}px (aspect ${REF_W}:${REF_H}).`;
 
         return `${scaleNote}
 // Place the motion node at the path start (first waypoint in the editor); x/y keyframes are relative to that origin.
@@ -538,11 +542,10 @@ export function AnimatedElement() {
     }, [points]);
 
     return (
-        <div className="flex w-full min-w-0 flex-col gap-6">
+        <div className="flex w-full min-w-0 flex-col gap-6 h-full">
             <header className="min-w-0">
                 <Card className="gap-2 border-0 bg-transparent py-0 shadow-none ring-0">
                     <CardHeader className="space-y-2 border-border px-0 pb-0">
-                       
                         <p className="max-w-2xl text-sm text-muted-foreground">
                             Record uses Framer&apos;s{' '}
                             <code className="rounded bg-muted px-1 py-0.5 text-foreground">
@@ -555,8 +558,8 @@ export function AnimatedElement() {
                 </Card>
             </header>
 
-            <div className="grid min-w-0 gap-4 lg:grid-cols-2 lg:items-start lg:gap-6">
-                <div className="flex min-w-0 flex-col gap-4">
+            <div className="grid min-w-0 gap-4 lg:grid-cols-2 lg:items-start lg:gap-6 flex-1">
+                <div className="flex min-w-0 flex-col gap-4 h-full">
                     <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                         <Card size="sm">
                             <CardHeader className="gap-2">
@@ -583,7 +586,7 @@ export function AnimatedElement() {
                         <Card size="sm">
                             <CardHeader className="gap-2">
                                 <CardDescription className="flex items-center gap-2 font-medium">
-                                        <IconInboxArrowDownFillDuo18 className="size-4 shrink-0" />
+                                    <IconInboxArrowDownFillDuo18 className="size-4 shrink-0" />
                                     Export
                                 </CardDescription>
                                 <CardTitle className="text-xl font-medium leading-tight font-sans">
@@ -597,7 +600,8 @@ export function AnimatedElement() {
                             <CardHeader className="gap-2">
                                 <CardDescription className="font-medium flex items-center gap-2">
                                     <IconGamingButtonsFillDuo18 className="size-4 shrink-0" />
-                                    Playground</CardDescription>
+                                    Playground
+                                </CardDescription>
                                 <CardTitle className="text-xl font-medium font-sans tabular-nums">
                                     {bounds.w > 0
                                         ? `${Math.round(bounds.w)}×${Math.round(bounds.h)}`
@@ -607,7 +611,8 @@ export function AnimatedElement() {
                         </Card>
                     </div>
 
-                    <Card>
+                    {/* The main edit here - make the Editor Card grow to fill available space */}
+                    <Card className="flex flex-col flex-1 min-h-0">
                         <CardHeader>
                             <h2 className="font-heading flex items-center gap-2 text-lg font-medium">
                                 <IconCircleCompose2FillDuo18 className="size-6" aria-hidden />
@@ -618,10 +623,10 @@ export function AnimatedElement() {
                                 click to add waypoints and drag the dot to edit.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="px-4 pt-0">
+                        <CardContent className="px-4 pt-0 flex-1 min-h-0 flex flex-col">
                             <div
                                 ref={playgroundRef}
-                                className="relative aspect-800/500 w-full min-w-0 overflow-hidden rounded-lg bg-accent"
+                                className="relative aspect-800/500 w-full min-w-0 overflow-hidden rounded-lg bg-accent flex-1 min-h-0"
                             >
                                 <canvas
                                     ref={canvasRef}
@@ -694,7 +699,6 @@ export function AnimatedElement() {
                                 />
                                 Export normalized (0–1) values
                             </label>
-                          
                         </CardFooter>
                     </Card>
                 </div>
@@ -713,7 +717,9 @@ export function AnimatedElement() {
                     />
                     <Card>
                         <CardHeader>
-                            <h2 className="font-heading text-sm font-medium">Coordinate modes</h2>
+                            <h2 className="font-heading text-sm font-medium">
+                                Coordinate modes
+                            </h2>
                         </CardHeader>
                         <CardContent className="px-4 pb-4 text-sm text-muted-foreground">
                             <ul className="list-inside list-disc space-y-1">
