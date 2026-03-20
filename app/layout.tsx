@@ -6,7 +6,7 @@ import { JsonLd } from "@/components/json-ld";
 import { ThemeProvider } from "@/components/theme-provider";
 import { getSiteUrl, siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
-
+import { Analytics } from "@vercel/analytics/next"
 const loraHeading = Lora({ subsets: ["latin"], variable: "--font-heading" });
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-sans" });
@@ -95,7 +95,10 @@ export default function RootLayout({
         >
             <body>
                 <JsonLd />
-                <ThemeProvider>{children}</ThemeProvider>
+                <ThemeProvider>{children}
+                    <Analytics />
+
+                </ThemeProvider>
             </body>
         </html>
     );
