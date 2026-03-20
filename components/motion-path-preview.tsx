@@ -119,7 +119,7 @@ export function MotionPathPreview({
             <CardContent className="flex min-h-0 flex-1 flex-col">
                 <div
                     ref={boxRef}
-                    className="relative aspect-800/500 w-full overflow-hidden rounded-lg bg-[#0a0a0a]"
+                    className="relative aspect-800/500 w-full overflow-hidden rounded-lg bg-accent"
                 >
                     {!hasPath ? (
                         <div className="flex h-full min-h-[140px] items-center justify-center px-4 text-center text-sm text-muted-foreground">

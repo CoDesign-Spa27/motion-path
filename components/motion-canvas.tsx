@@ -17,6 +17,7 @@ import { Copy, Play, Pause, RotateCcw } from 'lucide-react';
 import { MotionPathPreview } from '@/components/motion-path-preview';
 import { IconCircleCompose2FillDuo18, IconLocation2FillDuo18, IconTimer2FillDuo18, IconInboxArrowDownFillDuo18, IconGamingButtonsFillDuo18 } from 'nucleo-ui-essential-fill-duo-18';
 import Logo from './logo/logo';
+import { useTheme } from 'next-themes';
 
 const REF_W = 800;
 const REF_H = 500;
@@ -117,7 +118,7 @@ export function MotionCanvas() {
     const [exportNormalized, setExportNormalized] = useState(false);
     const [copiedCode, setCopiedCode] = useState(false);
     const [pathKey, setPathKey] = useState(0);
-
+    const { theme } = useTheme();
     const recordingStartRef = useRef<number | null>(null);
     const animationFrameRef = useRef<number | null>(null);
     const motionX = useMotionValue(0);
@@ -224,10 +225,10 @@ export function MotionCanvas() {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        ctx.fillStyle = '#0a0a0a';
+        ctx.fillStyle = theme === 'dark' ? '#1a1a1a' : '#f3f4f6';
         ctx.fillRect(0, 0, REF_W, REF_H);
 
-        ctx.strokeStyle = '#1a1a1a';
+        ctx.strokeStyle = theme === 'dark' ? '#2a2a2a' : '#e5e7eb';
         ctx.lineWidth = 1;
         for (let i = 0; i <= REF_W; i += 50) {
             ctx.beginPath();
@@ -277,7 +278,7 @@ export function MotionCanvas() {
             ctx.font = '12px sans-serif';
             ctx.fillText('REC', 35, 20);
         }
-    }, [points, isRecording]);
+    }, [points, theme, isRecording]);
 
     const handleBackgroundPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
         if (isPlaying) return;
@@ -542,9 +543,7 @@ export function AnimatedElement() {
             <header>
                 <Card className="gap-2 border-0 bg-transparent py-0 shadow-none ring-0">
                     <CardHeader className="space-y-2 border-border px-0 pb-6">
-                        <h1 className="font-heading text-3xl font-light tracking-tight">
-                            <Logo className="mr-2 inline-block size-10" aria-hidden /> Motion Path
-                        </h1>
+                       
                         <p className="max-w-2xl text-sm text-muted-foreground">
                             Record uses Framer&apos;s{' '}
                             <code className="rounded bg-muted px-1 py-0.5 text-foreground">
@@ -623,7 +622,7 @@ export function AnimatedElement() {
                         <CardContent>
                             <div
                                 ref={playgroundRef}
-                                className="relative aspect-800/500 w-full overflow-hidden rounded-lg  bg-[#0a0a0a]"
+                                className="relative aspect-800/500 w-full overflow-hidden rounded-lg bg-accent"
                             >
                                 <canvas
                                     ref={canvasRef}
@@ -758,7 +757,7 @@ export function AnimatedElement() {
                         </CardAction>
                     </CardHeader>
                     <CardContent>
-                        <pre className="overflow-x-auto rounded-lg border border-border bg-[#0a0a0a] p-4 font-mono text-xs text-foreground">
+                        <pre className="overflow-x-auto rounded-lg border border-border bg-background p-4 font-mono text-xs text-foreground">
                             {getCodeSnippet()}
                         </pre>
                     </CardContent>
