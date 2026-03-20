@@ -101,7 +101,7 @@ export function MotionPathPreview({
     ]);
 
     return (
-        <Card className="flex h-full flex-col">
+        <Card className="flex flex-col">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                     <IconWandSparkleFillDuo18 className="size-6" />

@@ -566,7 +566,7 @@ export function AnimatedElement() {
                                     <IconLocation2FillDuo18 className="size-4 shrink-0" />
                                     Points
                                 </CardDescription>
-                                <CardTitle className="text-xl font-semibold tabular-nums">
+                                <CardTitle className="text-xl font-semibold font-sans tabular-nums">
                                     {points.length}
                                 </CardTitle>
                             </CardHeader>
@@ -577,7 +577,7 @@ export function AnimatedElement() {
                                     <IconTimer2FillDuo18 className="size-4 shrink-0" />
                                     Duration
                                 </CardDescription>
-                                <CardTitle className="text-xl font-semibold tabular-nums">
+                                <CardTitle className="text-xl font-semibold font-sans tabular-nums">
                                     {maxTime.toFixed(2)}s
                                 </CardTitle>
                             </CardHeader>
@@ -588,10 +588,10 @@ export function AnimatedElement() {
                                         <IconInboxArrowDownFillDuo18 className="size-4 shrink-0" />
                                     Export
                                 </CardDescription>
-                                <CardTitle className="text-xl font-medium leading-tight">
+                                <CardTitle className="text-xl font-medium leading-tight font-sans">
                                     {exportPath.exportKind === 'framerOffsetPx'
-                                        ? 'offset px'
-                                        : 'path px'}
+                                        ? 'Offset px'
+                                        : 'Path px'}
                                 </CardTitle>
                             </CardHeader>
                         </Card>
@@ -600,7 +600,7 @@ export function AnimatedElement() {
                                 <CardDescription className="font-medium flex items-center gap-2">
                                     <IconGamingButtonsFillDuo18 className="size-4 shrink-0" />
                                     Playground</CardDescription>
-                                <CardTitle className="text-xl font-medium tabular-nums">
+                                <CardTitle className="text-xl font-medium font-sans tabular-nums">
                                     {bounds.w > 0
                                         ? `${Math.round(bounds.w)}×${Math.round(bounds.h)}`
                                         : '—'}
@@ -636,7 +636,7 @@ export function AnimatedElement() {
                                     onPointerDown={handleBackgroundPointerDown}
                                 />
                                 <motion.div
-                                    className="absolute top-0 left-0 z-10 size-6 cursor-grab touch-none rounded-full bg-blue-500 active:cursor-grabbing"
+                                    className="absolute top-0 left-0 z-10 size-6 cursor-grab touch-none rounded-full bg-red-400 active:cursor-grabbing"
                                     style={{ x: motionX, y: motionY }}
                                     drag={dragEnabled && !isPlaying}
                                     dragConstraints={playgroundRef}
