@@ -110,7 +110,7 @@ export function MotionPathPreview({
                     <span className="shrink-0 text-xs text-muted-foreground sm:pt-1">Auto-loop</span>
                 </div>
             </CardHeader>
-            <CardContent className="flex min-h-0 flex-1 flex-col px-4 pb-4 pt-0">
+            <CardContent className="flex min-h-0 flex-1 flex-col pt-0">
                 <div
                     ref={boxRef}
                     className="relative aspect-800/500 w-full min-w-0 overflow-hidden rounded-lg bg-accent"

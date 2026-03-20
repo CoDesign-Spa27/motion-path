@@ -627,7 +627,7 @@ export function AnimatedElement() {
                                 <code className="text-xs">info.offset</code>) is coming soon.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="px-4 pt-0 flex-1 min-h-0 flex flex-col">
+                        <CardContent className="pt-0 flex-1 min-h-0 flex flex-col">
                             <div
                                 ref={playgroundRef}
                                 className="relative aspect-800/500 w-full min-w-0 overflow-hidden rounded-lg bg-accent flex-1 min-h-0"
