@@ -13,14 +13,25 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Copy, Play, Pause, RotateCcw } from 'lucide-react';
+import { Code2, Play, Pause, RotateCcw } from 'lucide-react';
 import { MotionPathPreview } from '@/components/motion-path-preview';
+import {
+    CodeBlock,
+    CodeBlockBody,
+    CodeBlockContent,
+    CodeBlockCopyButton,
+    CodeBlockFilename,
+    CodeBlockFiles,
+    CodeBlockHeader,
+    CodeBlockItem,
+} from '@/components/ui/code-block';
 import {
     IconCircleCompose2FillDuo18,
     IconLocation2FillDuo18,
     IconTimer2FillDuo18,
     IconInboxArrowDownFillDuo18,
     IconGamingButtonsFillDuo18,
+    IconAtSignFillDuo18
 } from 'nucleo-ui-essential-fill-duo-18';
 import { useTheme } from 'next-themes';
 
@@ -122,7 +133,6 @@ export function MotionCanvas() {
     const [activePointIndex, setActivePointIndex] = useState(0);
     const [bounds, setBounds] = useState({ w: 0, h: 0 });
     const [exportNormalized, setExportNormalized] = useState(false);
-    const [copiedCode, setCopiedCode] = useState(false);
     const { theme } = useTheme();
     const recordingStartRef = useRef<number | null>(null);
     const animationFrameRef = useRef<number | null>(null);
@@ -400,7 +410,7 @@ export function MotionCanvas() {
         return logicalCenterToPixelTopLeft(p0.x, p0.y, pw, ph);
     }, [points, bounds.w, bounds.h]);
 
-    const getCodeSnippet = () => {
+    const generatedCode = useMemo(() => {
         const path = exportPath;
         const dur = Math.max(path.duration, 0.01);
         const pw = bounds.w || REF_W;
@@ -434,13 +444,18 @@ export function AnimatedElement() {
     </motion.div>
   );
 }`;
-    };
+    }, [exportPath, bounds.w, bounds.h, exportNormalized]);
 
-    const copyToClipboard = async () => {
-        await navigator.clipboard.writeText(getCodeSnippet());
-        setCopiedCode(true);
-        setTimeout(() => setCopiedCode(false), 2000);
-    };
+    const generatedCodeBlockData = useMemo(
+        () => [
+            {
+                language: 'tsx',
+                filename: 'AnimatedElement.tsx',
+                code: generatedCode,
+            },
+        ],
+        [generatedCode],
+    );
 
     const startPlayback = () => {
         if (points.length === 0) return;
@@ -768,26 +783,52 @@ export function AnimatedElement() {
 
             {points.length > 0 && (
                 <Card>
-                    <CardHeader className="">
-                        <h2 className="font-heading text-lg font-medium">Generated Code</h2>
-                        <CardAction className="flex items-center justify-between gap-2">
+                    <CardHeader className="space-y-2">
+                        <h2 className="font-heading flex items-center gap-2 text-lg font-medium">
+                            <IconAtSignFillDuo18 className="size-6" aria-hidden />
+                            Generated Code
+                        </h2>
+                        <CardAction className="flex items-center justify-end gap-2">
                             <span className="text-sm text-muted-foreground">
                                 {points.length} points
                             </span>
-                            <Button
-                                onClick={copyToClipboard}
-                                className="w-full gap-2 sm:w-auto"
-                                disabled={points.length === 0}
-                            >
-                                <Copy size={16} />
-                                {copiedCode ? 'Copied!' : 'Copy Code'}
-                            </Button>
                         </CardAction>
                     </CardHeader>
                     <CardContent className="px-4 pb-4 pt-0">
-                        <pre className="overflow-x-auto rounded-lg border border-border bg-background p-4 font-mono text-xs text-foreground">
-                            {getCodeSnippet()}
-                        </pre>
+                        <CodeBlock
+                            className="rounded-lg bg-muted/30"
+                            data={generatedCodeBlockData}
+                            defaultValue="tsx"
+                        >
+                            <CodeBlockHeader className="min-h-9 justify-between gap-2 rounded-t-[inherit] border-border bg-muted/50 p-0 pr-1">
+                                <CodeBlockFiles>
+                                    {(item) => (
+                                        <CodeBlockFilename
+                                            key={item.language}
+                                            value={item.language}
+                                        >
+                                            {item.filename}
+                                        </CodeBlockFilename>
+                                    )}
+                                </CodeBlockFiles>
+                                <CodeBlockCopyButton
+                                    className="size-8"
+                                    title="Copy code"
+                                />
+                            </CodeBlockHeader>
+                            <CodeBlockBody>
+                                {(item) => (
+                                    <CodeBlockItem
+                                        key={item.language}
+                                        lineNumbers
+                                        className="rounded-b-[inherit] border-t border-border bg-background"
+                                        value={item.language}
+                                    >
+                                        <CodeBlockContent language="tsx">{item.code}</CodeBlockContent>
+                                    </CodeBlockItem>
+                                )}
+                            </CodeBlockBody>
+                        </CodeBlock>
                     </CardContent>
                 </Card>
             )}
