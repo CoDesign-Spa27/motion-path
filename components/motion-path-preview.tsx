@@ -137,7 +137,7 @@ export function MotionPathPreview({
                                 width: DOT,
                                 height: DOT,
                             }}
-                            initial={false}
+                            initial={{ x: scaledX[0] ?? 0, y: scaledY[0] ?? 0 }}
                             animate={{ x: scaledX, y: scaledY }}
                             transition={{
                                 duration: dur,
