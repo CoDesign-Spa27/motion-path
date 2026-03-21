@@ -14,6 +14,7 @@
         "motion": "^12.38.0",
         "next": "16.1.7",
         "next-themes": "^0.4.6",
+        "nucleo-social-media": "^1.0.2",
         "nucleo-ui-essential-fill-duo-18": "^1.1.6",
         "radix-ui": "^1.4.3",
         "react": "^19.2.4",
@@ -1151,6 +1152,8 @@
     "node-releases": ["node-releases@2.0.36", "", {}, "sha512-TdC8FSgHz8Mwtw9g5L4gR/Sh9XhSP/0DEkQxfEFXOpiul5IiHgHan2VhYYb6agDSfp4KuvltmGApc8HMgUrIkA=="],
 
     "npm-run-path": ["npm-run-path@6.0.0", "", { "dependencies": { "path-key": "^4.0.0", "unicorn-magic": "^0.3.0" } }, "sha512-9qny7Z9DsQU8Ou39ERsPU4OZQlSTP47ShQzuKZ6PRXpYLtIFgl/DEBYEXKlvcEa+9tHVcK8CF81Y2V72qaZhWA=="],
+
+    "nucleo-social-media": ["nucleo-social-media@1.0.2", "", { "dependencies": { "tslib": "^2.0.0" }, "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, "sha512-lKke7vUABXW65pJWBwhZ/wzcLVqPDbjh37KfxjWDhfvtEJLOcCTLl/N1C2K8D6B6m+G33mRmcN8jTxJqPJXEtw=="],
 
     "nucleo-ui-essential-fill-duo-18": ["nucleo-ui-essential-fill-duo-18@1.1.6", "", { "dependencies": { "tslib": "^2.0.0" }, "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, "sha512-SuhTAan6OfMTGJ3ls3Rgac6lXPvNRFAOzRs+sRoGXKhhUA7X9iMIhBA6z7WXZkNle+Ng4gFTbOmkoQISGTuqSw=="],
 
