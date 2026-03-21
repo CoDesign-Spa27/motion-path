@@ -42,7 +42,7 @@ export const metadata: Metadata = {
         url: "/",
         images: [
             {
-                url: "./og.png",
+                url: "/og.png",
                 width: 1200,
                 height: 630,
             },
@@ -55,6 +55,14 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: siteConfig.title.default,
         description: siteConfig.description,
+        creator: "@roohbuilds",
+        images:[
+            {
+                url: "/og.png",
+                width: 1200,
+                height: 630,
+            },
+        ]
     },
     robots: {
         index: true,
