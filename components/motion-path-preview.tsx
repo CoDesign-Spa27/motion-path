@@ -1,9 +1,10 @@
 'use client';
 
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { easeIn, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { IconWandSparkleFillDuo18 } from 'nucleo-ui-essential-fill-duo-18';
+import type { CubicBezierTuple } from '@/lib/motion-path/types';
 import Logo from './logo/logo';
 const DOT = 24;
 
@@ -17,9 +18,14 @@ export type MotionPathPreviewProps = {
     /** Measured editor playground size when the path was built (px) */
     editorW: number;
     editorH: number;
+    /** Export parent size used when building keyframes (px) */
+    exportParentW: number;
+    exportParentH: number;
     /** Top-left of the dot at the first keyframe, in editor playground px */
     pathStartTopLeft: { x: number; y: number };
     exportNormalized: boolean;
+    /** Resolved Motion `transition.ease` (preset or custom cubic-bezier). */
+    transitionEase: CubicBezierTuple | 'linear';
 };
 
 export function MotionPathPreview({
@@ -30,8 +36,11 @@ export function MotionPathPreview({
     pathKey,
     editorW,
     editorH,
+    exportParentW,
+    exportParentH,
     pathStartTopLeft,
     exportNormalized,
+    transitionEase,
 }: MotionPathPreviewProps) {
     const boxRef = useRef<HTMLDivElement>(null);
     const [previewSize, setPreviewSize] = useState({ w: 0, h: 0 });
@@ -58,16 +67,18 @@ export function MotionPathPreview({
         const ph = previewSize.h;
         const ew = Math.max(editorW, 1);
         const eh = Math.max(editorH, 1);
+        const parentW = Math.max(exportParentW, 1);
+        const parentH = Math.max(exportParentH, 1);
 
         if (!hasPath || pw <= 0 || ph <= 0) {
             return { left: 0, top: 0, scaledX: x, scaledY: y };
         }
 
-        const scaleX = pw / ew;
-        const scaleY = ph / eh;
+        const scaleEditorX = pw / ew;
+        const scaleEditorY = ph / eh;
 
-        const baseLeft = pathStartTopLeft.x * scaleX;
-        const baseTop = pathStartTopLeft.y * scaleY;
+        const baseLeft = pathStartTopLeft.x * scaleEditorX;
+        const baseTop = pathStartTopLeft.y * scaleEditorY;
 
         if (exportNormalized) {
             return {
@@ -78,11 +89,14 @@ export function MotionPathPreview({
             };
         }
 
+        const scaleKeyframeX = pw / parentW;
+        const scaleKeyframeY = ph / parentH;
+
         return {
             left: baseLeft,
             top: baseTop,
-            scaledX: x.map((v) => v * scaleX),
-            scaledY: y.map((v) => v * scaleY),
+            scaledX: x.map((v) => v * scaleKeyframeX),
+            scaledY: y.map((v) => v * scaleKeyframeY),
         };
     }, [
         hasPath,
@@ -90,6 +104,8 @@ export function MotionPathPreview({
         y,
         editorW,
         editorH,
+        exportParentW,
+        exportParentH,
         pathStartTopLeft.x,
         pathStartTopLeft.y,
         previewSize.w,
@@ -107,9 +123,9 @@ export function MotionPathPreview({
                             Live preview
                         </CardTitle>
                         <CardDescription>
-                            Keyframes scale from the editor ({Math.round(editorW)} ×{' '}
-                            {Math.round(editorH)} px) so motion matches. The dot starts at the first
-                            keyframe, same as the editor.
+                            Keyframes use export parent {Math.round(exportParentW)} ×{' '}
+                            {Math.round(exportParentH)} px; dot start matches the editor (
+                            {Math.round(editorW)} × {Math.round(editorH)} px).
                         </CardDescription>
                     </div>
                     <span className="shrink-0 text-xs text-muted-foreground sm:pt-1">Auto-loop</span>
@@ -143,13 +159,13 @@ export function MotionPathPreview({
                             transition={{
                                 duration: dur,
                                 times,
-                                ease:"easeInOut",
+                                ease: transitionEase,
                                 repeat: Infinity,
                                 repeatType: 'loop',
                                 repeatDelay: 0.6,
                             }}
                         >
-                            <Logo className='size-10' />
+                            <Logo className="size-10" />
                         </motion.div>
                     )}
                 </div>
