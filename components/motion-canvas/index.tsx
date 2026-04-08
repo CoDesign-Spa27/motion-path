@@ -18,6 +18,7 @@ import {
     REF_H,
     RECORDING_COMING_SOON,
     DEFAULT_REGION_LOGICAL,
+    INITIAL_REGION_LOGICAL,
     DEFAULT_CUSTOM_BEZIER,
 } from '@/lib/motion-path/constants';
 import { logicalCenterToPixelTopLeft } from '@/lib/motion-path/coordinates';
@@ -48,7 +49,7 @@ export function MotionCanvas() {
     const [easingMode, setEasingMode] = useState<EasingMode>('preset');
     const [easingPreset, setEasingPreset] = useState<EasingPreset>('easeInOut');
     const [customBezier, setCustomBezier] = useState<CubicBezierTuple>(() => [...DEFAULT_CUSTOM_BEZIER]);
-    const [region, setRegion] = useState(() => ({ ...DEFAULT_REGION_LOGICAL }));
+    const [region, setRegion] = useState(() => ({ ...INITIAL_REGION_LOGICAL }));
     const [editorToolMode, setEditorToolMode] = useState<EditorToolMode>('point');
     const [parentExportW, setParentExportW] = useState(0);
     const [parentExportH, setParentExportH] = useState(0);

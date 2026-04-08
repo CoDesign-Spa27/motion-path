@@ -191,7 +191,7 @@ export function KonvaPathEditor({
                     y={region.y}
                     width={region.w}
                     height={region.h}
-                    fill="rgba(167, 139, 250, 0.08)"
+                    fill="rgba(167, 139, 250, 0.09)"
                     listening={false}
                 />
                 <Rect

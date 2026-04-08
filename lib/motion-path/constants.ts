@@ -3,7 +3,16 @@ import type { RegionLogical } from './types';
 export const REF_W = 800;
 export const REF_H = 500;
 
+/** Full logical canvas — used for export fallback and “reset region” to full frame. */
 export const DEFAULT_REGION_LOGICAL: RegionLogical = { x: 0, y: 0, w: REF_W, h: REF_H };
+
+/** Compact centered export frame on first load (not full canvas). */
+export const INITIAL_REGION_LOGICAL: RegionLogical = {
+    x: Math.round((REF_W - 240) / 2),
+    y: Math.round((REF_H - 150) / 2),
+    w: 300,
+    h: 200,
+};
 
 /** Default custom easing (matches easeInOut preset). */
 export const DEFAULT_CUSTOM_BEZIER: readonly [number, number, number, number] = [0.42, 0, 0.58, 1];
