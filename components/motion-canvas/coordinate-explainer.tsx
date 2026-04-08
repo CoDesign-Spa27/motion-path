@@ -17,12 +17,24 @@ export function CoordinateExplainer() {
                     </li>
                     <li>
                         <strong className="text-foreground">Free draw</strong>: click to add
-                        waypoints; export uses pixel deltas for this playground size.
+                        waypoints; export uses pixel deltas from the first keyframe. The purple
+                        region defines the logical width/height used to scale those deltas to your
+                        parent size (live playground or overridden width/height).
+                    </li>
+                    <li>
+                        <strong className="text-foreground">Path edges</strong>:{' '}
+                        <em>Sharp</em> connects waypoints with straight segments; <em>Rounded</em>{' '}
+                        uses a smooth curve (Catmull–Rom) for both the canvas and playback.
+                    </li>
+                    <li>
+                        <strong className="text-foreground">Easing</strong>: applies to overall
+                        animation time in Play, Live preview, and the generated{' '}
+                        <code className="text-xs">transition.ease</code> snippet.
                     </li>
                     <li>
                         <strong className="text-foreground">Preview</strong>: scales keyframes from
-                        the editor size into the preview panel and anchors the dot at the first
-                        keyframe so it matches the editor.
+                        the export parent size into the preview panel and anchors the dot at the
+                        first keyframe so it matches the editor.
                     </li>
                 </ul>
             </CardContent>
