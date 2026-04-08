@@ -3,13 +3,14 @@
 import { useRef, useCallback, useEffect } from 'react';
 import type { RefObject } from 'react';
 import type { MotionValue, PanInfo } from 'motion/react';
-import type { Point } from '@/lib/motion-path/types';
+import type { EditorToolMode, Point, RegionLogical } from '@/lib/motion-path/types';
 import { REF_W, REF_H, HIT_RADIUS_LOGICAL, SAMPLE_MS } from '@/lib/motion-path/constants';
 import {
     clientToLogical,
     pixelTopLeftToLogicalCenter,
     dist2,
     clamp,
+    clampLogicalToRegion,
 } from '@/lib/motion-path/coordinates';
 
 interface UsePointInteractionOptions {
@@ -23,6 +24,8 @@ interface UsePointInteractionOptions {
     recordingStartRef: RefObject<number | null>;
     setPoints: React.Dispatch<React.SetStateAction<Point[]>>;
     setActivePointIndex: React.Dispatch<React.SetStateAction<number>>;
+    region: RegionLogical;
+    editorToolMode: EditorToolMode;
 }
 
 export function usePointInteraction({
@@ -36,6 +39,8 @@ export function usePointInteraction({
     recordingStartRef,
     setPoints,
     setActivePointIndex,
+    region,
+    editorToolMode,
 }: UsePointInteractionOptions) {
     // rerender-use-ref-transient-values: isDragging is only used in callbacks, never drives render
     const isDraggingRef = useRef(false);
@@ -55,6 +60,11 @@ export function usePointInteraction({
         activePointIndexRef.current = activePointIndex;
     }, [activePointIndex]);
 
+    const regionRef = useRef(region);
+    useEffect(() => {
+        regionRef.current = region;
+    }, [region]);
+
     const pushRecordingSample = useCallback(
         (info: PanInfo, session: number, force = false) => {
             const el = playgroundRef.current;
@@ -70,8 +80,9 @@ export function usePointInteraction({
             const ox = info.offset.x;
             const oy = info.offset.y;
             const { lx: originLx, ly: originLy } = recordingOriginLogicalRef.current;
-            const x = clamp(originLx + (ox / pw) * REF_W, 0, REF_W);
-            const y = clamp(originLy + (oy / ph) * REF_H, 0, REF_H);
+            const rx = clamp(originLx + (ox / pw) * REF_W, 0, REF_W);
+            const ry = clamp(originLy + (oy / ph) * REF_H, 0, REF_H);
+            const { x, y } = clampLogicalToRegion(rx, ry, regionRef.current);
             const t = (now - recordingStartRef.current) / 1000;
 
             // rerender-functional-setstate: derive next state from prev
@@ -92,6 +103,10 @@ export function usePointInteraction({
         [playgroundRef, recordingStartRef, setPoints],
     );
 
+    const applyPointLogical = useCallback((lx: number, ly: number) => {
+        return clampLogicalToRegion(lx, ly, regionRef.current);
+    }, []);
+
     const flushRecordingSample = useCallback(
         (info: PanInfo, session: number) => {
             pushRecordingSample(info, session, true);
@@ -99,13 +114,10 @@ export function usePointInteraction({
         [pushRecordingSample],
     );
 
-    const handleBackgroundPointerDown = useCallback(
-        (e: React.PointerEvent<HTMLDivElement>) => {
-            if (isPlaying || isRecording) return;
-            const el = playgroundRef.current;
-            if (!el) return;
-            const rect = el.getBoundingClientRect();
-            const { x, y } = clientToLogical(e.clientX, e.clientY, rect);
+    const handleLogicalPointerDown = useCallback(
+        (lx: number, ly: number) => {
+            if (editorToolMode !== 'point' || isPlaying || isRecording) return;
+            const { x, y } = clampLogicalToRegion(lx, ly, regionRef.current);
 
             const current = pointsRef.current;
             const r2 = HIT_RADIUS_LOGICAL * HIT_RADIUS_LOGICAL;
@@ -133,10 +145,23 @@ export function usePointInteraction({
             setPoints((prev) => [...prev, { x, y, time: timeBase }]);
             setActivePointIndex(current.length);
         },
-        [isPlaying, isRecording, playgroundRef, setPoints, setActivePointIndex],
+        [editorToolMode, isPlaying, isRecording, setPoints, setActivePointIndex],
+    );
+
+    const handleBackgroundPointerDown = useCallback(
+        (e: React.PointerEvent<HTMLDivElement>) => {
+            if (editorToolMode !== 'point' || isPlaying || isRecording) return;
+            const el = playgroundRef.current;
+            if (!el) return;
+            const rect = el.getBoundingClientRect();
+            const { x: lx, y: ly } = clientToLogical(e.clientX, e.clientY, rect);
+            handleLogicalPointerDown(lx, ly);
+        },
+        [editorToolMode, isPlaying, isRecording, playgroundRef, handleLogicalPointerDown],
     );
 
     const handleDragStart = useCallback(() => {
+        if (editorToolMode !== 'point') return;
         isDraggingRef.current = true;
         if (!isRecording || !recordingStartRef.current) return;
         const el = playgroundRef.current;
@@ -156,11 +181,11 @@ export function usePointInteraction({
 
         const t = (Date.now() - recordingStartRef.current) / 1000;
         setPoints((prev) => [...prev, { x: lx, y: ly, time: t, ox: 0, oy: 0, session }]);
-    }, [isRecording, recordingStartRef, playgroundRef, motionX, motionY, setPoints]);
+    }, [editorToolMode, isRecording, recordingStartRef, playgroundRef, motionX, motionY, setPoints]);
 
     const handleDrag = useCallback(
         (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
-            if (isPlaying) return;
+            if (editorToolMode !== 'point' || isPlaying) return;
             if (isRecording && recordingStartRef.current) {
                 pushRecordingSample(info, recordingDragSessionRef.current, false);
                 return;
@@ -172,7 +197,8 @@ export function usePointInteraction({
             const h = el.clientHeight;
             const px = motionX.get();
             const py = motionY.get();
-            const { x, y } = pixelTopLeftToLogicalCenter(px, py, w, h);
+            const raw = pixelTopLeftToLogicalCenter(px, py, w, h);
+            const { x, y } = applyPointLogical(raw.x, raw.y);
             const idx = activePointIndexRef.current;
             // rerender-functional-setstate: derive next state from prev
             setPoints((prev) => {
@@ -183,23 +209,24 @@ export function usePointInteraction({
                 return next;
             });
         },
-        [isPlaying, isRecording, recordingStartRef, playgroundRef, motionX, motionY, pushRecordingSample, setPoints],
+        [editorToolMode, isPlaying, isRecording, recordingStartRef, playgroundRef, motionX, motionY, pushRecordingSample, setPoints, applyPointLogical],
     );
 
     const handleDragEnd = useCallback(
         (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
-            if (isRecording && recordingStartRef.current) {
+            if (editorToolMode === 'point' && isRecording && recordingStartRef.current) {
                 flushRecordingSample(info, recordingDragSessionRef.current);
             }
             isDraggingRef.current = false;
         },
-        [isRecording, recordingStartRef, flushRecordingSample],
+        [editorToolMode, isRecording, recordingStartRef, flushRecordingSample],
     );
 
     return {
         isDraggingRef,
         recordingDragSessionRef,
         handleBackgroundPointerDown,
+        handleLogicalPointerDown,
         handleDragStart,
         handleDrag,
         handleDragEnd,
