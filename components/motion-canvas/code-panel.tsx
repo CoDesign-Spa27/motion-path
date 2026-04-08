@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'motion/react';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/ui/card';
 import {
     CodeBlock,
@@ -20,6 +21,11 @@ interface CodePanelProps {
 
 export function CodePanel({ pointCount, codeBlockData }: CodePanelProps) {
     return (
+        <motion.div
+            initial={{ opacity: 0.96, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        >
         <Card>
             <CardHeader className="space-y-2">
                 <h2 className="font-heading flex items-center gap-2 text-lg font-medium">
@@ -61,5 +67,6 @@ export function CodePanel({ pointCount, codeBlockData }: CodePanelProps) {
                 </CodeBlock>
             </CardContent>
         </Card>
+        </motion.div>
     );
 }
