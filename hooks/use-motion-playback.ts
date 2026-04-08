@@ -3,7 +3,8 @@
 import { useRef, useState, useCallback } from 'react';
 import type { RefObject } from 'react';
 import type { MotionValue } from 'motion/react';
-import type { Point } from '@/lib/motion-path/types';
+import type { PathEdgeStyle, Point } from '@/lib/motion-path/types';
+import { easeNormalizedWithConfig, type EasingPlaybackConfig } from '@/lib/motion-path/easing';
 import { interpolateAt } from '@/lib/motion-path/interpolate';
 import { logicalCenterToPixelTopLeft } from '@/lib/motion-path/coordinates';
 
@@ -11,9 +12,17 @@ interface UseMotionPlaybackOptions {
     playgroundRef: RefObject<HTMLDivElement | null>;
     motionX: MotionValue<number>;
     motionY: MotionValue<number>;
+    easing: EasingPlaybackConfig;
+    edgeStyle: PathEdgeStyle;
 }
 
-export function useMotionPlayback({ playgroundRef, motionX, motionY }: UseMotionPlaybackOptions) {
+export function useMotionPlayback({
+    playgroundRef,
+    motionX,
+    motionY,
+    easing,
+    edgeStyle,
+}: UseMotionPlaybackOptions) {
     const [isPlaying, setIsPlaying] = useState(false);
     const animationFrameRef = useRef<number | null>(null);
 
@@ -38,8 +47,10 @@ export function useMotionPlayback({ playgroundRef, motionX, motionY }: UseMotion
                 const pw = el?.clientWidth ?? 0;
                 const ph = el?.clientHeight ?? 0;
                 const elapsed = (Date.now() - startTime) / 1000;
-                const t = Math.min(elapsed, maxTime);
-                const { x: lx, y: ly } = interpolateAt(points, t);
+                const u = Math.min(elapsed / maxTime, 1);
+                const uEased = easeNormalizedWithConfig(u, easing);
+                const t = uEased * maxTime;
+                const { x: lx, y: ly } = interpolateAt(points, t, { edgeStyle });
                 if (pw > 0 && ph > 0) {
                     const { x, y } = logicalCenterToPixelTopLeft(lx, ly, pw, ph);
                     motionX.set(x);
@@ -55,7 +66,7 @@ export function useMotionPlayback({ playgroundRef, motionX, motionY }: UseMotion
 
             animationFrameRef.current = requestAnimationFrame(tick);
         },
-        [playgroundRef, motionX, motionY],
+        [playgroundRef, motionX, motionY, easing, edgeStyle],
     );
 
     return { isPlaying, animationFrameRef, startPlayback, stopPlayback };
