@@ -1,3 +1,4 @@
+import type { RegionLogical } from './types';
 import { REF_W, REF_H, DOT_HALF } from './constants';
 
 export function clamp(n: number, min: number, max: number) {
@@ -10,6 +11,24 @@ export function clientToLogical(clientX: number, clientY: number, rect: DOMRect)
     return {
         x: clamp(x, 0, REF_W),
         y: clamp(y, 0, REF_H),
+    };
+}
+
+/**
+ * Map Konva stage pointer coordinates to logical editor space (0…REF_W × 0…REF_H).
+ * Use when stage internal width/height may differ from REF_* (e.g. responsive sizing).
+ */
+export function stagePointerToLogical(
+    pos: { x: number; y: number },
+    stageWidth: number,
+    stageHeight: number,
+) {
+    if (stageWidth <= 0 || stageHeight <= 0) {
+        return { x: 0, y: 0 };
+    }
+    return {
+        x: clamp((pos.x / stageWidth) * REF_W, 0, REF_W),
+        y: clamp((pos.y / stageHeight) * REF_H, 0, REF_H),
     };
 }
 
@@ -37,4 +56,11 @@ export function dist2(ax: number, ay: number, bx: number, by: number) {
     const dx = ax - bx;
     const dy = ay - by;
     return dx * dx + dy * dy;
+}
+
+export function clampLogicalToRegion(x: number, y: number, region: RegionLogical): { x: number; y: number } {
+    return {
+        x: clamp(x, region.x, region.x + region.w),
+        y: clamp(y, region.y, region.y + region.h),
+    };
 }
